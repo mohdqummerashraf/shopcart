@@ -1,9 +1,9 @@
-import SwipeableViews from 'react-swipeable-views';
-import { autoPlay } from 'react-swipeable-views-utils';
+// import SwipeableViews from 'react-swipeable-views';
+// import { autoPlay } from 'react-swipeable-views-utils';
  import { Box, useTheme, MobileStepper } from '@mui/material';
 import { useState } from 'react';
 
-const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
+// const AutoPlaySwipeableViews = autoPlay(SwipeableViews);
 
 export const ProductBanner = ({images}) => {
 
@@ -26,7 +26,7 @@ export const ProductBanner = ({images}) => {
 
   return (
     <>
-    <AutoPlaySwipeableViews style={{overflow:"hidden"}} width={'100%'} height={'100%'} axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'} index={activeStep} onChangeIndex={handleStepChange} enableMouseEvents >
+    {/* <AutoPlaySwipeableViews style={{overflow:"hidden"}} width={'100%'} height={'100%'} axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'} index={activeStep} onChangeIndex={handleStepChange} enableMouseEvents >
         {
         images.map((image,index) => (
         <div key={index} style={{width:"100%",height:'100%'}}>
@@ -40,7 +40,7 @@ export const ProductBanner = ({images}) => {
         </div>
         ))
         }
-    </AutoPlaySwipeableViews>
+    </AutoPlaySwipeableViews> */}
     <div style={{alignSelf:'center'}}>
         <MobileStepper steps={maxSteps} position="static" activeStep={activeStep}/>
     </div>
