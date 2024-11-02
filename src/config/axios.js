@@ -1,7 +1,9 @@
-import axios from 'axios'
-console.log("process.env.REACT_APP_BASE_URL",    process.env.REACT_APP_BASE_URL)
+import axios from "axios";
 
-
-
-
-export const axiosi=axios.create({withCredentials:true,baseURL:`https://mern-backend-beta.vercel.app/`});
+export const axiosi = axios.create({
+  baseURL: `https://mern-backend-beta.vercel.app/`,
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",          // Specify the content type
+    }
+});
