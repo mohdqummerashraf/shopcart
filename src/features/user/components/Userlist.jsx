@@ -22,8 +22,9 @@ import {
 } from "@mui/material";
 
 import { toast } from "react-toastify";
-import { fetchAllUserAsync, selectUserList } from "../UserSlice";
-import { fetchAllUser } from "../UserApi";
+ import { fetchAllUser } from "../UserApi";
+import { deleteMessages, deleteUsersAsync, fetchAllUserAsync, resetDeleteStatus, resetUpdateStatus, selectUserList } from "../UserSlice";
+import { resetCreatedStatus, selectCreatedStatus } from "../../auth/AuthSlice";
   const Userlist = () => {
   const {
     register,
@@ -36,8 +37,9 @@ import { fetchAllUser } from "../UserApi";
 
   const dispatch = useDispatch();
   const users = useSelector(selectUserList);
-//   const deleteMessage = useSelector(deleteMessages);
+  const deleteMessage = useSelector(deleteMessages);
 //   const productAddStatus = useSelector(selectCategoryStatus);
+  const createdStatus = useSelector(selectCreatedStatus);
 
   const navigate = useNavigate();
   const theme = useTheme();
@@ -45,30 +47,42 @@ import { fetchAllUser } from "../UserApi";
   const isMediumScreen = useMediaQuery(theme.breakpoints.between('sm', 'md')); // Medium: sm, md (600px to 960px)
   const isLargeScreen = useMediaQuery(theme.breakpoints.up('md'));  // Large: md and above (from 960px and up)
 
-//   useEffect(()=>{
-//       if(deleteMessage=='fulfilled'){
-//            toast.success("Category deleted successfully");
-//            dispatch(fetchAllCategoriesAsync());
-//            dispatch(resetDeleteStatus())
-//       }
-//       else if(deleteMessage=='rejected'){
-//           toast.error("Error in deleting product, please try again later")
-//       }
-//   },[deleteMessage])
+  useEffect(()=>{
+    if(deleteMessage=='fulfilled'){
+         toast.success("User deleted successfully");
+         dispatch(fetchAllUserAsync());
+         dispatch(resetDeleteStatus())
+    }
+    else if(deleteMessage=='rejected'){
+        toast.error("Error in deleting user, please try again later")
+    }
+},[deleteMessage])
 
  
   const handleEdit = (id) => {
-    // navigate(`/admin/create-category?categoryId=${id}`);
+    navigate(`/admin/add-user?userId=${id}`);
   };
   
 
   const handleDelete = (id) => {
-    //  dispatch(deleteCategoriesAsync(id))
+     dispatch(deleteUsersAsync(id))
   };
 
   useEffect(()=>{
     dispatch(fetchAllUserAsync());
   },[]);
+
+  useEffect(() => {
+    dispatch(fetchAllUserAsync());
+    // dispatch(resetCreateStatus());
+    dispatch(resetUpdateStatus());
+    }, []);
+    useEffect(() => {
+      if (createdStatus === "fulfilled" || createdStatus === "rejected") {
+        // Reset create status to idle after processing
+        dispatch(resetCreatedStatus());
+      }
+    }, [createdStatus, dispatch]);
 
 
  

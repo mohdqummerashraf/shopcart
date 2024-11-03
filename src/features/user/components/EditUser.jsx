@@ -1,5 +1,5 @@
 import { useTheme } from "@emotion/react";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { Password, Visibility, VisibilityOff } from "@mui/icons-material";
 import {
   Avatar,
   Button,
@@ -15,11 +15,19 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useForm } from "react-hook-form";
-import { createUserAsync, resetCreatedStatus, resetSignupStatus, selectCreatedStatus, selectSignupStatus, signupAsync } from "../../auth/AuthSlice";
+import {
+  createUserAsync,
+  resetCreatedStatus,
+  resetSignupStatus,
+  selectCreatedStatus,
+  selectSignupStatus,
+  signupAsync,
+} from "../../auth/AuthSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { fetchUserByIdAsync, resetUpdateStatus, selectupdateMessage, selectUserData, updateUserByIdAsync } from "../UserSlice";
 
 function EditUser() {
   const theme = useTheme();
@@ -34,8 +42,15 @@ function EditUser() {
 
   const navigate = useNavigate();
 
+  const location = useLocation();
 
-  const [userInfo, setUserInfo] = useState([]);
+  // Create a helper to parse query parameters
+  const queryParams = new URLSearchParams(location.search);
+  const userId = queryParams.get("userId");
+
+  const userData = useSelector(selectUserData);
+
+  console.log("userData", userData);
 
   const [showPassword, setShowPassword] = useState(true);
 
@@ -44,24 +59,57 @@ function EditUser() {
   const is900 = useMediaQuery(theme.breakpoints.down(900));
   const is480 = useMediaQuery(theme.breakpoints.down(480));
 
-  const createdStatus= useSelector(selectCreatedStatus);
+  const createdStatus = useSelector(selectCreatedStatus);
+  const updateStatusMessage = useSelector(selectupdateMessage);
+ 
 
   useEffect(() => {
-    if (createdStatus === "fulfilled" ) {
+    if (createdStatus === "fulfilled" || updateStatusMessage === "fulfilled") {
       reset(); // Reset the form
       toast.success("New user added");
       navigate("/admin/user-list");
-    } else if (createdStatus === "rejected") {
-      toast.error("Error adding user, please try again later");
-      dispatch(resetCreatedStatus()); // Reset status
+    } else if (createdStatus === "rejected" || updateStatusMessage === "rejected") {
+      toast.error("Error in category operation, please try again later");
+      // dispatch(resetCreateStatus());
+      dispatch(resetUpdateStatus());
     }
-  }, [createdStatus]);
+  }, [createdStatus, updateStatusMessage, reset, navigate, dispatch]);
 
-  const handleFormSubmit = (data) => {
+  const handleFormSubmit = async (data) => {
     const cred = { ...data };
-    cred.isVerified=true;
-    dispatch(createUserAsync(cred));
+    cred.isVerified = true;
+
+    if (userData !== null) {
+      console.log("click huya....");
+        // dispatch(editBrandAsync(brandData?._id, data));
+        try {
+          const updateUser = await dispatch(updateUserByIdAsync({ id: userData?._id, data: cred }));
+          if (updateUser.meta.requestStatus === 'fulfilled') {
+              console.log("Brand updated successfully:", updateUser.payload);
+          }
+      } catch (error) {
+          console.error("Error updating brand:", error);
+      }
+    } else {
+      dispatch(createUserAsync(cred));
+    }
   };
+
+  useEffect(() => {
+    if (userId) {
+      dispatch(fetchUserByIdAsync(userId));
+    }
+  }, [userId]);
+
+  useEffect(() => {
+    if (userData) {
+      reset({
+        name: userData.name,
+        email: userData.email, // Corrected to email from userData
+        password: userData.password,
+      });
+    }
+  }, [userData, reset]);
 
   return (
     <Stack
@@ -92,7 +140,6 @@ function EditUser() {
             <Typography align="left">Name</Typography>
             <TextField
               placeholder="Enter your name"
-              defaultValue={userInfo?.name}
               {...register("name", { required: true })}
               fullWidth
             />
@@ -102,7 +149,6 @@ function EditUser() {
             <TextField
               placeholder="Enter your email"
               type="email"
-              defaultValue={userInfo?.email}
               {...register("email", { required: true })}
               fullWidth
             />
@@ -133,11 +179,7 @@ function EditUser() {
             >
               <FormControl variant="outlined" size="small">
                 <Typography align="left">Admin</Typography>
-                <Select
-                  native
-                  defaultValue={userInfo?.isAdmin ? "true" : "false"}
-                  {...register("isAdmin", { required: true })}
-                >
+                <Select native {...register("isAdmin", { required: true })}>
                   <option value="true">True</option>
                   <option value="false">False</option>
                 </Select>

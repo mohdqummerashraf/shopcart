@@ -55,7 +55,7 @@ export const Navbar = ({ isProductList = false }) => {
           mr: 2, display: { xs: 'none', md: 'flex' },
           fontWeight: 700, letterSpacing: '.3rem', color: 'inherit', textDecoration: 'none',
         }}>
-          MERN SHOP
+          Bag Kart
         </Typography>
 
         <Stack flexDirection={'row'} alignItems={'center'} justifyContent={'center'} columnGap={2}>

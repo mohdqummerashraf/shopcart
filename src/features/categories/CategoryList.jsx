@@ -78,8 +78,7 @@ import { deleteCategoriesAsync, deleteMessages, fetchAllCategoriesAsync, resetCr
     }, [productAddStatus, dispatch]);
     
 
-    console.log("productAddStatus", productAddStatus)
-
+ 
   return (
     <>
      <Stack
