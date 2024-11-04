@@ -26,7 +26,7 @@ export const OrderSuccessPage = () => {
     },[currentOrder])
 
   return (
-    <Stack width={'100vw'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
+    <Stack width={'96vw'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
 
         <Stack component={Paper} boxShadow={is480?'none':""} rowGap={3} elevation={1} p={is480?1:4} justifyContent={'center'} alignItems={'center'}>
 

@@ -44,7 +44,7 @@ export const Signup = () => {
   
   useEffect(()=>{
     if(status==='fullfilled'){
-      toast.success("Welcome! Verify your email to start shopping on mern-ecommerce.")
+      toast.success("Welcome! Verify your email to start shopping on bag-commerce.")
       reset()
     }
     return ()=>{
@@ -62,7 +62,7 @@ export const Signup = () => {
   }
 
   return (
-    <Stack width={'100vw'} height={'100vh'} flexDirection={'row'} sx={{overflowY:"hidden"}}>
+    <Stack width={'96vw'} height={'100vh'} flexDirection={'row'} sx={{overflowY:"hidden"}}>
 
       {
         !is900 &&
@@ -77,8 +77,8 @@ export const Signup = () => {
 
               <Stack flexDirection={'row'} justifyContent={'center'} alignItems={'center'}>
                   <Stack rowGap={'.4rem'}>
-                    <Typography variant='h2' sx={{wordBreak:"break-word"}} fontWeight={600}>Mern Shop</Typography>
-                    <Typography alignSelf={'flex-end'} color={'GrayText'} variant='body2'>- Shop Anything</Typography>
+                    <Typography variant='h2' sx={{wordBreak:"break-word"}} fontWeight={600}>KingStar</Typography>
+                    <Typography alignSelf={'flex-end'} color={'GrayText'} variant='body2'>- Shop Any Bag</Typography>
                   </Stack>
 
               </Stack>

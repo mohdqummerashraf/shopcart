@@ -98,7 +98,7 @@ export const Reviews = ({productId,averageRating}) => {
     
 
   return (
-        <Stack rowGap={5} alignSelf={"flex-start"}  width={is480?"90vw":is840?"25rem":'40rem'}>
+        <Stack rowGap={5} alignSelf={"flex-start"}  width={is480?"90%":is840?"25rem":'40rem'}>
 
 
             <Stack>

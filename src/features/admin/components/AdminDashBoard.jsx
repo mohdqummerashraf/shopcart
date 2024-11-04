@@ -1,4 +1,4 @@
-import { Button, FormControl, Grid, IconButton, InputLabel, MenuItem, Pagination, Select, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Button, FormControl, Grid, Grid2, IconButton, InputLabel, MenuItem, Pagination, Select, Stack, Typography, useMediaQuery, useTheme } from '@mui/material'
 import React, { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import Accordion from '@mui/material/Accordion';
@@ -188,7 +188,7 @@ export const AdminDashBoard = () => {
 
         </Stack>
      
-        <Grid gap={2} container flex={1} justifyContent={'center'} alignContent={"center"}>
+        <Grid2 gap={2} container flex={1} justifyContent={'center'} alignContent={"center"}>
             {
                 products?.map((product)=>(
                     <Stack>
@@ -208,7 +208,7 @@ export const AdminDashBoard = () => {
                     </Stack>
                 ))
             }
-        </Grid>
+        </Grid2>
 
         <Stack alignSelf={is488?'center':'flex-end'} mr={is488?0:5} rowGap={2} p={is488?1:0}>
             <Pagination size={is488?'medium':'large'} page={page}  onChange={(e,page)=>setPage(page)} count={Math.ceil(totalResults/ITEMS_PER_PAGE)} variant="outlined" shape="rounded" />

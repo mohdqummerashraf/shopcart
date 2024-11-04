@@ -10,7 +10,7 @@ import {motion} from 'framer-motion'
 
 export const Cart = ({checkout}) => {
     const items=useSelector(selectCartItems)
-    const subtotal=items.reduce((acc,item)=>item.product.price*item.quantity+acc,0)
+    const subtotal=items.reduce((acc,item)=>((item.product.price * (1 - (item.product?.discountPercentage ||10) / 100)).toFixed(2))*item.quantity+acc,0)
     const totalItems=items.reduce((acc,item)=>acc+item.quantity,0)
     const navigate=useNavigate()
     const theme=useTheme()
@@ -70,24 +70,24 @@ export const Cart = ({checkout}) => {
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Subtotal</Typography>
-                                <Typography>${subtotal}</Typography>
+                                <Typography>₹{subtotal}</Typography>
                             </Stack>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Shipping</Typography>
-                                <Typography>${SHIPPING}</Typography>
+                                <Typography>₹{SHIPPING}</Typography>
                             </Stack>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Taxes</Typography>
-                                <Typography>${TAXES}</Typography> 
+                                <Typography>₹{TAXES}</Typography> 
                             </Stack>
 
                             <hr/>
 
                             <Stack flexDirection={'row'} justifyContent={'space-between'}>
                                 <Typography>Total</Typography>
-                                <Typography>${subtotal+SHIPPING+TAXES}</Typography>
+                                <Typography>₹{Math.round(subtotal+SHIPPING+TAXES)}</Typography>
                             </Stack>
                             
 
@@ -101,7 +101,7 @@ export const Cart = ({checkout}) => {
                             </Stack>
 
                             <Stack>
-                                <Typography variant='h6' fontWeight={500}>${subtotal}</Typography>
+                                <Typography variant='h6' fontWeight={500}>₹{subtotal}</Typography>
                             </Stack>
                         </>
                     )

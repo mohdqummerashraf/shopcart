@@ -3,18 +3,16 @@ import { createTheme } from "@mui/material/styles";
 export const theme = createTheme({
   palette: {
     primary: {
-      main:"#000000",
-      light:"#ffffff",
-      dark:'#DB4444',
-      customBlack:"#191919"
+      main: "#000000",
+      light: "#ffffff",
+      dark: '#DB4444',
+      customBlack: "#191919"
     },
-    secondary:{
-      main:"#background.paper"
+    secondary: {
+      main: "#f5f5f5" // Updated to a valid color code
     },
   },
-
   
-
   breakpoints: {
     values: {
       xs: 0,
@@ -24,94 +22,43 @@ export const theme = createTheme({
       xl: 1536,
     },
   },
+  
   typography: {
-    fontFamily:"Poppins, sans-serif",
-    h1: {  // -1rem rule
-      fontSize: "6rem",
-
-      "@media (max-width:960px)": {
-        fontSize: "5rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: "4rem",
-      },
-      "@media (max-width:414px)": {
-        fontSize: "2.5rem",
-      },
+    fontFamily: "Poppins, sans-serif",
+    h1: {
+      fontSize: "clamp(2.5rem, 6vw, 6rem)",
     },
-    h2: {  // -7 formula
-      fontSize: "3.75rem",
-      "@media (max-width:960px)": {
-        fontSize: "3rem",
-      },
-
-      "@media (max-width:662px)": {
-        fontSize: "2.3rem",
-      },
-      "@media (max-width:414px)": {
-        fontSize: "2.2rem",
-      },
+    h2: {
+      fontSize: "clamp(2.2rem, 5vw, 3.75rem)",
     },
-    h3: {  // -6 formula
-      fontSize: "3rem",
-      "@media (max-width:960px)": {
-        fontSize: "2.4rem",
-      },
-      
-      "@media (max-width:662px)": {
-        fontSize: "2rem",
-      },
-      "@media (max-width:414px)": {
-        fontSize: "1.7rem",
-      },
-
+    h3: {
+      fontSize: "clamp(1.7rem, 4.5vw, 3rem)",
     },
     h4: {
-       fontSize: "2.125rem",
-      "@media (max-width:960px)": {
-        fontSize: "1.5rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: "1.25rem",
-      },
+      fontSize: "clamp(1.25rem, 3vw, 2.125rem)",
     },
     h5: {
-      fontSize: "1.5rem",
-      "@media (max-width:960px)": {
-        fontSize: "1.25rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: "1.1rem",
-      },
+      fontSize: "clamp(1.1rem, 2.5vw, 1.5rem)",
     },
     h6: {
-      fontSize: "1.25rem",
-      "@media (max-width:960px)": {
-        fontSize: "1.1rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: "1rem",
-      },
+      fontSize: "clamp(1rem, 2vw, 1.25rem)",
     },
     body1: {
-      fontSize: "1rem",
-      "@media (max-width:960px)": {
-        fontSize: "1rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: ".9rem",
-      },
+      fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
     },
     body2: {
-      fontSize: "1rem",
-      "@media (max-width:960px)": {
-        fontSize: "1rem",
-      },
-      "@media (max-width:600px)": {
-        fontSize: "1rem",
-      },
-      "@media (max-width:480px)": {
-        fontSize: ".97rem",
+      fontSize: "clamp(0.9rem, 1.5vw, 1rem)",
+    },
+  },
+
+  components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          margin: 0,
+          padding: 0,
+          overflowX: "hidden", // Prevent horizontal scroll
+        },
       },
     },
   },

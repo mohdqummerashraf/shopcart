@@ -52,7 +52,7 @@ export const ResetPassword = () => {
     }
 
   return (
-    <Stack width={'100vw'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
+    <Stack width={'96vw'} height={'100vh'} justifyContent={'center'} alignItems={'center'}>
 
         <Stack>
 

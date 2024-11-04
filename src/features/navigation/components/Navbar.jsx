@@ -3,9 +3,8 @@ import AppBar from '@mui/material/AppBar';
 import Toolbar from '@mui/material/Toolbar';
 import IconButton from '@mui/material/IconButton';
 import Typography from '@mui/material/Typography';
- 
 import { Link, useNavigate } from 'react-router-dom';
-import {Menu,Avatar,Tooltip,MenuItem, Badge, Button, Stack, useMediaQuery, useTheme } from '@mui/material';
+import { Badge, Button, Menu, Stack, useMediaQuery, useTheme, MenuItem, Tooltip, Avatar } from '@mui/material';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserInfo } from '../../user/UserSlice';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
@@ -48,14 +47,13 @@ export const Navbar = ({ isProductList = false }) => {
   ];
 
   return (
-    <AppBar position="sticky" sx={{ backgroundColor: "white", boxShadow: "none", color: "text.primary" }}>
+    <AppBar position="sticky" sx={{ backgroundColor: "white", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", color: "text.primary" }}>
       <Toolbar sx={{ p: 1, height: "4rem", display: "flex", justifyContent: "space-around" }}>
-
         <Typography variant="h6" noWrap component="a" href="/" sx={{
           mr: 2, display: { xs: 'none', md: 'flex' },
-          fontWeight: 700, letterSpacing: '.3rem', color: 'inherit', textDecoration: 'none',
+          fontWeight: 'bolder', letterSpacing: '.3rem', color: 'inherit', textDecoration: 'none',
         }}>
-          Bag Kart
+          KingStar
         </Typography>
 
         <Stack flexDirection={'row'} alignItems={'center'} justifyContent={'center'} columnGap={2}>

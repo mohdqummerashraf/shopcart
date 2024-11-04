@@ -1,4 +1,4 @@
-import { Stack, TextField, Typography ,Button, Menu, MenuItem, Select, Grid, FormControl, Radio, Paper, IconButton, Box, useTheme, useMediaQuery} from '@mui/material'
+import { Stack, TextField, Typography ,Button, Menu, MenuItem, Select, Grid, FormControl, Radio, Paper, IconButton, Box, useTheme, useMediaQuery, Grid2} from '@mui/material'
 import { LoadingButton } from '@mui/lab'
 import React, { useEffect, useState } from 'react'
 import { Cart } from '../../cart/components/Cart'
@@ -125,7 +125,7 @@ export const Checkout = () => {
                     <Typography variant='body2' color={'text.secondary'}>Choose from existing Addresses</Typography>
                 </Stack>
 
-                <Grid container gap={2} width={is900?"auto":'50rem'} justifyContent={'flex-start'} alignContent={'flex-start'}>
+                <Grid2 container gap={2} width={is900?"auto":'50rem'} justifyContent={'flex-start'} alignContent={'flex-start'}>
                         {
                             addresses.map((address,index)=>(
                                 <FormControl item >
@@ -146,7 +146,7 @@ export const Checkout = () => {
                                 </FormControl>
                             ))
                         }
-                </Grid>
+                </Grid2>
 
             </Stack>
             

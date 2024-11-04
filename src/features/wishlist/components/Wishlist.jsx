@@ -1,4 +1,4 @@
-import { Box, Button, Grid, IconButton, Paper, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
+import { Box, Button, Grid, Grid2, IconButton, Paper, Stack, TextField, Typography, useMediaQuery, useTheme } from '@mui/material'
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import {useDispatch,useSelector} from 'react-redux'
 import { createWishlistItemAsync, deleteWishlistItemByIdAsync, resetWishlistFetchStatus, resetWishlistItemAddStatus, resetWishlistItemDeleteStatus, resetWishlistItemUpdateStatus, selectWishlistFetchStatus, selectWishlistItemAddStatus, selectWishlistItemDeleteStatus, selectWishlistItemUpdateStatus, selectWishlistItems, updateWishlistItemByIdAsync } from '../WishlistSlice'
@@ -30,6 +30,8 @@ export const Wishlist = () => {
   const [editValue,setEditValue]=useState('')
   const {register,handleSubmit,watch,formState: { errors }} = useForm()
 
+
+  console.log("wishlistItems", wishlistItems)
   const theme=useTheme()
   const is1130=useMediaQuery(theme.breakpoints.down(1130))
   const is642=useMediaQuery(theme.breakpoints.down(642))
@@ -166,12 +168,12 @@ export const Wishlist = () => {
                   </Stack>
                 ):
                 // wishlist grid
-                <Grid container gap={1} justifyContent={'center'} alignContent={'center'}>
+                <Grid2 container gap={1} justifyContent={'center'} alignContent={'center'}>
                   {
                     wishlistItems.map((item,index)=>(
                       <Stack component={is480?"":Paper} elevation={1} >
 
-                          <ProductCard item key={item._id} brand={item.product.brand.name} id={item.product._id} price={item.product.price} stockQuantity={item.product.stockQuantity} thumbnail={item.product.thumbnail} title={item.product.title} handleAddRemoveFromWishlist={handleAddRemoveFromWishlist} isWishlistCard={true}/>
+                          <ProductCard item key={item._id} brand={item.product.brand.name} id={item.product?._id || ''} price={item.product.price} stockQuantity={item.product.stockQuantity} thumbnail={item.product.thumbnail} title={item.product.title} handleAddRemoveFromWishlist={handleAddRemoveFromWishlist} isWishlistCard={true}/>
                         
                         <Stack paddingLeft={2} paddingRight={2} paddingBottom={2}>
 
@@ -210,7 +212,7 @@ export const Wishlist = () => {
                       </Stack>
                     ))
                   }
-                </Grid>
+                </Grid2>
               }
             </Stack>
         
