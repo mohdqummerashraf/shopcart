@@ -137,16 +137,25 @@ export const ProductList = () => {
 
   const handleAddRemoveFromWishlist = (e, productId) => {
     const data = { user: loggedInUser?._id, product: productId };
+    
     if (e.target.checked) {
-      dispatch(createWishlistItemAsync(data));
+        dispatch(createWishlistItemAsync(data));
     } else {
-      const index = wishlistItems.findIndex(
-        (item) => item.product._id === productId
-      );
-      if (index !== -1)
-        dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id));
+        const index = wishlistItems.findIndex((item) => {
+            console.log("item:", item._id);
+            console.log("productId:", productId);
+            return item?.product?._id === productId;
+        });
+
+        console.log("wishlistItems", wishlistItems)
+        console.log("index", index)
+        
+        if (index !== -1) {
+            dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id));
+        }
     }
-  };
+};
+
 
   useEffect(() => {
     if (wishlistItemAddStatus === "fulfilled") {
