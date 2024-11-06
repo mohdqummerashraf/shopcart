@@ -74,14 +74,12 @@ import { resetCreatedStatus, selectCreatedStatus } from "../../auth/AuthSlice";
 
   useEffect(() => {
     dispatch(fetchAllUserAsync());
-    // dispatch(resetCreateStatus());
+    dispatch(resetCreatedStatus());
     dispatch(resetUpdateStatus());
     }, []);
     useEffect(() => {
-      if (createdStatus === "fulfilled" || createdStatus === "rejected") {
-        // Reset create status to idle after processing
-        dispatch(resetCreatedStatus());
-      }
+      if(createdStatus ==='fulfilled'){
+      dispatch(resetCreatedStatus());}
     }, [createdStatus, dispatch]);
 
 

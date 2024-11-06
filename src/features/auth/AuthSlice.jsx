@@ -150,7 +150,7 @@ const authSlice=createSlice({
                 state.createdStatus='pending'
             })
             .addCase(createUserAsync.fulfilled,(state,action)=>{
-                state.createdStatus='fullfilled'
+                state.createdStatus='fulfilled'
                 state.loggedInUser=action.payload
             })
             .addCase(createUserAsync.rejected,(state,action)=>{

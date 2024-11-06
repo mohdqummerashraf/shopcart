@@ -246,7 +246,7 @@ export const ProductList = () => {
                 </motion.div>
               </IconButton>
 
-              <Stack rowGap={2} mt={4}>
+              {/* <Stack rowGap={2} mt={4}>
                 {["Backpacks", "Handbag", "Trolley Bags", "Laptop Bag"].map(
                   (item) => (
                     <Typography
@@ -258,7 +258,7 @@ export const ProductList = () => {
                     </Typography>
                   )
                 )}
-              </Stack>
+              </Stack> */}
 
               <Stack mt={2}>
                 <Accordion>

@@ -27,7 +27,13 @@ import { useDispatch, useSelector } from "react-redux";
 import { toast } from "react-toastify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
-import { fetchUserByIdAsync, resetUpdateStatus, selectupdateMessage, selectUserData, updateUserByIdAsync } from "../UserSlice";
+import {
+  fetchUserByIdAsync,
+  resetUpdateStatus,
+  selectupdateMessage,
+  selectUserData,
+  updateUserByIdAsync,
+} from "../UserSlice";
 
 function EditUser() {
   const theme = useTheme();
@@ -61,19 +67,25 @@ function EditUser() {
 
   const createdStatus = useSelector(selectCreatedStatus);
   const updateStatusMessage = useSelector(selectupdateMessage);
- 
 
   useEffect(() => {
+    console.log("createdStatus", createdStatus);
+    console.log("updateStatusMessage", updateStatusMessage);
     if (createdStatus === "fulfilled" || updateStatusMessage === "fulfilled") {
       reset(); // Reset the form
       toast.success("New user added");
+      dispatch(resetCreatedStatus());
+
       navigate("/admin/user-list");
-    } else if (createdStatus === "rejected" || updateStatusMessage === "rejected") {
+    } else if (
+      createdStatus === "rejected" ||
+      updateStatusMessage === "rejected"
+    ) {
       toast.error("Error in category operation, please try again later");
       // dispatch(resetCreateStatus());
       dispatch(resetUpdateStatus());
     }
-  }, [createdStatus, updateStatusMessage, reset, navigate, dispatch]);
+  }, [createdStatus, updateStatusMessage, reset, dispatch]);
 
   const handleFormSubmit = async (data) => {
     const cred = { ...data };
@@ -81,14 +93,16 @@ function EditUser() {
 
     if (userData !== null) {
       console.log("click huya....");
-        // dispatch(editBrandAsync(brandData?._id, data));
-        try {
-          const updateUser = await dispatch(updateUserByIdAsync({ id: userData?._id, data: cred }));
-          if (updateUser.meta.requestStatus === 'fulfilled') {
-              console.log("Brand updated successfully:", updateUser.payload);
-          }
+      // dispatch(editBrandAsync(brandData?._id, data));
+      try {
+        const updateUser = await dispatch(
+          updateUserByIdAsync({ id: userData?._id, data: cred })
+        );
+        if (updateUser.meta.requestStatus === "fulfilled") {
+          console.log("Brand updated successfully:", updateUser.payload);
+        }
       } catch (error) {
-          console.error("Error updating brand:", error);
+        console.error("Error updating brand:", error);
       }
     } else {
       dispatch(createUserAsync(cred));

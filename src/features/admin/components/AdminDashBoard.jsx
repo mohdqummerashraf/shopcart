@@ -89,6 +89,13 @@ export const AdminDashBoard = () => {
         dispatch(toggleFilters())
     }
 
+
+    const [expanded, setExpanded] = useState(true);
+
+    const handleAccordionToggle = () => {
+        setExpanded((prev) => !prev);
+    };
+
   return (
     <>
 
@@ -108,17 +115,17 @@ export const AdminDashBoard = () => {
                 </IconButton>
 
 
-        <Stack rowGap={2} mt={4} >
+        {/* <Stack rowGap={2} mt={4} >
             <Typography sx={{cursor:"pointer"}} variant='body2'>Totes</Typography>
             <Typography sx={{cursor:"pointer"}} variant='body2'>Backpacks</Typography>
             <Typography sx={{cursor:"pointer"}} variant='body2'>Travel Bags</Typography>
             <Typography sx={{cursor:"pointer"}} variant='body2'>Hip Bags</Typography>
             <Typography sx={{cursor:"pointer"}} variant='body2'>Laptop Sleeves</Typography>
-        </Stack>
+        </Stack> */}
 
         {/* brand filters */}
         <Stack mt={2}>
-            <Accordion>
+            <Accordion   defaultExpanded={true}>
                 <AccordionSummary expandIcon={<AddIcon />}  aria-controls="brand-filters" id="brand-filters" >
                         <Typography>Brands</Typography>
                 </AccordionSummary>
@@ -139,7 +146,7 @@ export const AdminDashBoard = () => {
 
         {/* category filters */}
         <Stack mt={2}>
-            <Accordion>
+            <Accordion defaultExpanded={true}>
                 <AccordionSummary expandIcon={<AddIcon />}  aria-controls="brand-filters" id="brand-filters" >
                         <Typography>Category</Typography>
                 </AccordionSummary>
