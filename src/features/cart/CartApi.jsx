@@ -1,6 +1,7 @@
 import {axiosi} from '../../config/axios'
 
 export const addToCart=async(item)=>{
+    console.log("adding item........", item)
     try {
         const res=await axiosi.post('/cart',item)
         return res.data
@@ -24,14 +25,14 @@ export const updateCartItemById=async(update)=>{
         throw error.response.data
     }
 }
-export const deleteCartItemById=async(id)=>{
-    try {
-        const res=await axiosi.delete(`/cart/${id}`)
-        return res.data
-    } catch (error) {
-        throw error.response.data
-    }
-}
+export const deleteCartItemById = async ({userId, productId}) => {
+    await axiosi.delete(`/cart/user/${userId}/product/${productId}`);
+    return productId; // Return only the deleted product ID
+};
+ 
+  
+
+
 
 export const resetCartByUserId=async(userId)=>{
     try {

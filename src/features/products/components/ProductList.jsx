@@ -90,7 +90,7 @@ export const ProductList = () => {
   const wishlistItems = useSelector(selectWishlistItems) || [];
   const wishlistItemAddStatus = useSelector(selectWishlistItemAddStatus);
   const wishlistItemDeleteStatus = useSelector(selectWishlistItemDeleteStatus);
-  const cartItemAddStatus = useSelector(selectCartItemAddStatus);
+  // const cartItemAddStatus = useSelector(selectCartItemAddStatus);
   const isProductFilterOpen = useSelector(selectProductIsFilterOpen);
 
   const dispatch = useDispatch();
@@ -142,13 +142,11 @@ export const ProductList = () => {
         dispatch(createWishlistItemAsync(data));
     } else {
         const index = wishlistItems.findIndex((item) => {
-            console.log("item:", item._id);
-            console.log("productId:", productId);
+            
             return item?.product?._id === productId;
         });
 
-        console.log("wishlistItems", wishlistItems)
-        console.log("index", index)
+        
         
         if (index !== -1) {
             dispatch(deleteWishlistItemByIdAsync(wishlistItems[index]._id));
@@ -175,13 +173,13 @@ export const ProductList = () => {
     }
   }, [wishlistItemDeleteStatus]);
 
-  useEffect(() => {
-    if (cartItemAddStatus === "fulfilled") {
-      toast.success("Product added to cart");
-    } else if (cartItemAddStatus === "rejected") {
-      toast.error("Error adding product to cart, please try again later");
-    }
-  }, [cartItemAddStatus]);
+  // useEffect(() => {
+  //   if (cartItemAddStatus === "fulfilled") {
+  //     toast.success("Product added to cart");
+  //   } else if (cartItemAddStatus === "rejected") {
+  //     toast.error("Error adding product to cart, please try again later");
+  //   }
+  // }, [cartItemAddStatus]);
 
   useEffect(() => {
     if (productFetchStatus === "rejected") {
@@ -202,8 +200,7 @@ export const ProductList = () => {
     dispatch(toggleFilters());
   };
 
-  console.log("products", products);
-
+ 
   return (
     <>
       {productFetchStatus === "pending" ? (

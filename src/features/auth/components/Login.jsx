@@ -11,13 +11,10 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import Lottie from "lottie-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate, useParams } from "react-router-dom";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useForm } from "react-hook-form";
-import {
-  ecommerceOutlookAnimation,
-  shoppingBagAnimation,
-} from "../../../assets";
+import { ecommerceOutlookAnimation } from "../../../assets";
 import { useDispatch, useSelector } from "react-redux";
 import { LoadingButton } from "@mui/lab";
 import {
@@ -30,12 +27,31 @@ import {
 } from "../AuthSlice";
 import { toast } from "react-toastify";
 import { MotionConfig, motion } from "framer-motion";
+import {
+  addToCartAsync,
+  fetchCartByUserIdAsync,
+  removeProductFromCart,
+} from "../../cart/CartSlice";
 
 export const Login = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
+
+  const loggedInUser = useSelector(selectLoggedInUser);
+
+  const cartCount = useSelector((state) => state.cartSlice?.cartCount);
+  const items = useSelector((state) => state.cartSlice?.items);
+
+  const cartItems =
+    loggedInUser !== null && Object.keys(loggedInUser).length > 1
+      ? items || []
+      : cartCount || [];
+
+  // Extract the query parameters using URLSearchParams
+  const queryParams = new URLSearchParams(location.search);
+  const checkoutLogin = queryParams.get("checkoutLogin");
   const status = useSelector(selectLoginStatus);
   const error = useSelector(selectLoginError);
-  const loggedInUser = useSelector(selectLoggedInUser);
   const {
     register,
     handleSubmit,
@@ -47,13 +63,47 @@ export const Login = () => {
   const is900 = useMediaQuery(theme.breakpoints.down(900));
   const is480 = useMediaQuery(theme.breakpoints.down(480));
 
+  const [localCartItems, setLocalCartItems] = useState(cartItems); // Backup local cart items
+  const [cartSynced, setCartSynced] = useState(false); // Track when cart sync is done
+
+  console.log("localCartItems", localCartItems);
+
   useEffect(() => {
-    if (loggedInUser && loggedInUser?.isVerified) {
-      navigate("/");
-    } else if (loggedInUser && !loggedInUser?.isVerified) {
-      navigate("/verify-otp");
+    const addItemsToServerCart = async () => {
+      for (const item of localCartItems) {
+        await dispatch(
+          addToCartAsync({
+            user: loggedInUser._id,
+            product: item._id,
+            quantity: item.quantity,
+          })
+        );
+        await dispatch(removeProductFromCart(item._id));
+      }
+      // Fetch updated cart and set sync flag to true after completion
+      dispatch(fetchCartByUserIdAsync(loggedInUser._id));
+      setCartSynced(true); // Mark sync completion for navigation
+    };
+
+    if (loggedInUser && loggedInUser.isVerified && localCartItems.length > 0) {
+      addItemsToServerCart();
     }
-  }, [loggedInUser]);
+  }, [loggedInUser, localCartItems, dispatch]);
+
+  console.log("cartSynced", cartSynced);
+
+  useEffect(() => {
+    if (loggedInUser && loggedInUser.isVerified) {
+      if (cartSynced) {
+        const checkoutLogin = new URLSearchParams(location.search).get(
+          "checkoutLogin"
+        );
+        navigate(checkoutLogin ? "/cart" : "/");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [cartSynced, navigate, location, loggedInUser]);
 
   const [showPassword, setShowPassword] = useState(false);
 
@@ -74,12 +124,11 @@ export const Login = () => {
       dispatch(clearLoginError());
       dispatch(resetLoginStatus());
     };
-  }, [status]);
+  }, [status, loggedInUser, dispatch, reset]);
 
   const handleLogin = (data) => {
     const cred = { ...data };
-    // delete cred.confirmPassword;
-    dispatch(loginAsync(cred));
+    dispatch(loginAsync(cred)); // Dispatch login action
   };
 
   return (

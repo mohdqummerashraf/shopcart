@@ -14,20 +14,34 @@ import Checkbox from "@mui/material/Checkbox";
 import { useDispatch, useSelector } from "react-redux";
 import { selectWishlistItems } from "../../wishlist/WishlistSlice";
 import { selectLoggedInUser } from "../../auth/AuthSlice";
-import { addToCartAsync, selectCartItems } from "../../cart/CartSlice";
+import {
+  addProductToCart,
+  removeProductFromCart,
+  addToCartAsync,
+  removeFromCartAsync,
+  selectCartItems,
+  deleteCartItemByIdAsync,
+} from "../../cart/CartSlice";
 import { motion } from "framer-motion";
+import { toast } from "react-toastify";
 
 export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
-  const navigate = useNavigate(); // Always call useNavigate at the top level
-  const theme = useTheme(); // Always call useTheme at the top level
-  const is408 = useMediaQuery(theme.breakpoints.down(408)); // Always call useMediaQuery at the top level
+  const navigate = useNavigate();
+  const theme = useTheme();
+  const is408 = useMediaQuery(theme.breakpoints.down(408));
 
   const wishlistItems = useSelector(selectWishlistItems);
   const loggedInUser = useSelector(selectLoggedInUser);
-  const cartItems = useSelector(selectCartItems);
+  const cartCount = useSelector((state) => state.cartSlice?.cartCount);
+  const items = useSelector((state) => state.cartSlice?.items);
+
   const dispatch = useDispatch();
 
-  // Check if product is defined
+  const cartItems =
+    loggedInUser !== null && Object.keys(loggedInUser).length > 1
+      ? items || []
+      : cartCount || [];
+
   if (!product) {
     return (
       <Typography variant="body1" color="error">
@@ -46,22 +60,53 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
     isAdminCard,
   } = product;
 
-  const isProductAlreadyinWishlist = wishlistItems.some((item) => {
-    return item?.product?._id === product?._id;
-});
+  const isProductAlreadyinWishlist = wishlistItems?.some((item) => {
+     
+    if (loggedInUser !== null) {
+      return item?.product?._id === product?._id;
+    }
+    {
+      return item?.product?._id === product?._id
+    }
+  });
 
-   const isProductAlreadyInCart = cartItems.some(
-    (item) => item?.product?._id === id
-  );
+  const isProductAlreadyInCart = (cartItems || [])?.some((item) => {
+    if (loggedInUser !== null) {
+      return item?.product?._id === product?._id;
+    }
+    {
+      return item?._id === product?._id;
+    }
+  });
+
 
   const handleAddToCart = async (e) => {
     e.stopPropagation();
-    const data = { user: loggedInUser?._id, product: product?._id };
-    console.log("data", data)
-    dispatch(addToCartAsync(data));
+    const productId = product?._id;
+    if (loggedInUser !== null && Object.keys(loggedInUser).length > 1) {
+      const data = { user: loggedInUser?._id, product: productId, quantity: 1 };
+      dispatch(addToCartAsync(data));
+    } else {
+      dispatch(addProductToCart(product));
+    }
+    toast.success(`Product added to cart!`);
   };
 
-  // Calculate discount price
+  const handleRemoveFromCart = (e) => {
+    e.stopPropagation();
+    const productId = product?._id;
+    const userId = loggedInUser?._id;
+  
+    if (loggedInUser !== null && Object.keys(loggedInUser).length > 1) {
+      dispatch(deleteCartItemByIdAsync({ userId, productId }));
+      toast.success("Product removed from cart!");
+    } else {
+      dispatch(removeProductFromCart(productId));
+      toast.success("Product removed from cart!");
+    }
+  };
+  
+
   const discountedPrice = (
     price *
     (1 - (product?.discountPercentage || 10) / 100)
@@ -73,11 +118,10 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
       mt={is408 ? 2 : 0}
       elevation={1}
       p={2}
-      width={is408 ? "auto" : "340px"} // Simplified width logic
+      width={is408 ? "auto" : "340px"}
       sx={{ cursor: "pointer" }}
       onClick={() => navigate(`/product-details/${product?._id}`)}
     >
-      {/* Image Display */}
       <Stack>
         <img
           width={"100%"}
@@ -88,7 +132,6 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
         />
       </Stack>
 
-      {/* Lower Section */}
       <Stack flex={2} justifyContent={"flex-end"} spacing={1} rowGap={2}>
         <Stack>
           <Stack
@@ -120,7 +163,6 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
           </Typography>
         </Stack>
 
-        {/* Price and Discount */}
         <Stack
           flexDirection="row"
           justifyContent="space-between"
@@ -139,12 +181,15 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
             </Typography>
           </Stack>
 
-          {/* Add to Cart Button */}
-          {!isWishlistCard && !isProductAlreadyInCart && !isAdminCard && (
+          {!isWishlistCard && !isAdminCard && (
             <motion.button
               whileHover={{ scale: 1.03 }}
               whileTap={{ scale: 1 }}
-              onClick={(e) => handleAddToCart(e)}
+              onClick={(e) =>
+                isProductAlreadyInCart
+                  ? handleRemoveFromCart(e)
+                  : handleAddToCart(e)
+              }
               style={{
                 padding: "10px 15px",
                 borderRadius: "3px",
@@ -162,13 +207,14 @@ export const ProductCard = ({ product, handleAddRemoveFromWishlist }) => {
                   columnGap: ".5rem",
                 }}
               >
-                <p>Add To Cart</p>
+                <p>
+                  {isProductAlreadyInCart ? "Remove from Cart" : "Add To Cart"}
+                </p>
               </div>
             </motion.button>
           )}
         </Stack>
 
-        {/* Stock Quantity Warning */}
         {stockQuantity <= 20 && (
           <FormHelperText sx={{ fontSize: ".9rem" }} error>
             {stockQuantity === 1 ? "Only 1 stock is left" : "Only a few left"}

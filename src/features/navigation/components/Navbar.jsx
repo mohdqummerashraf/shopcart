@@ -8,7 +8,7 @@ import { Badge, Button, Menu, Stack, useMediaQuery, useTheme, MenuItem, Tooltip,
 import { useDispatch, useSelector } from 'react-redux';
 import { selectUserInfo } from '../../user/UserSlice';
 import ShoppingCartOutlinedIcon from '@mui/icons-material/ShoppingCartOutlined';
-import { selectCartItems } from '../../cart/CartSlice';
+import { selectCartCount, selectCartItems } from '../../cart/CartSlice';
 import { selectLoggedInUser } from '../../auth/AuthSlice';
 import { selectWishlistItems } from '../../wishlist/WishlistSlice';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
@@ -18,7 +18,8 @@ import { selectProductIsFilterOpen, toggleFilters } from '../../products/Product
 export const Navbar = ({ isProductList = false }) => {
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const userInfo = useSelector(selectUserInfo);
-  const cartItems = useSelector(selectCartItems);
+  const items = useSelector((state) => state.cartSlice?.items);
+  const cartCount = useSelector((state) => state.cartSlice?.cartCount);
   const loggedInUser = useSelector(selectLoggedInUser);
   const wishlistItems = useSelector(selectWishlistItems);
   const isProductFilterOpen = useSelector(selectProductIsFilterOpen);
@@ -27,6 +28,10 @@ export const Navbar = ({ isProductList = false }) => {
   const theme = useTheme();
   const is480 = useMediaQuery(theme.breakpoints.down(480));
 
+ 
+  const cartItems = loggedInUser ? (items || []) : (cartCount || []);
+
+  // Handle user menu toggle
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
   };
@@ -39,6 +44,7 @@ export const Navbar = ({ isProductList = false }) => {
     dispatch(toggleFilters());
   };
 
+  // Menu items for logged-in users and guests
   const settings = [
     { name: "Home", to: "/" },
     { name: 'Profile', to: loggedInUser?.isAdmin ? "/profile" : "/profile" },
@@ -46,6 +52,9 @@ export const Navbar = ({ isProductList = false }) => {
     { name: 'Logout', to: "/logout" },
   ];
 
+   
+
+ 
   return (
     <AppBar position="sticky" sx={{ backgroundColor: "white", boxShadow: "0 2px 4px rgba(0,0,0,0.1)", color: "text.primary" }}>
       <Toolbar sx={{ p: 1, height: "4rem", display: "flex", justifyContent: "space-around" }}>
@@ -57,11 +66,13 @@ export const Navbar = ({ isProductList = false }) => {
         </Typography>
 
         <Stack flexDirection={'row'} alignItems={'center'} justifyContent={'center'} columnGap={2}>
-          <Tooltip title="Open settings">
+        
+        {loggedInUser !== null && <Tooltip title="Open settings">
             <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
               <Avatar alt={userInfo?.name || ''} src="null" />
             </IconButton>
-          </Tooltip>
+          </Tooltip>}
+
           <Menu
             sx={{ mt: '45px' }}
             id="menu-appbar"
@@ -88,27 +99,29 @@ export const Navbar = ({ isProductList = false }) => {
                 </MenuItem>
               </>
             )}
-            {settings?.map((setting) => (
+            {loggedInUser !== null && settings?.map((setting) => (
               <MenuItem key={setting.name} onClick={handleCloseUserMenu}>
                 <Typography component={Link} color={'text.primary'} sx={{ textDecoration: "none" }} to={setting.to} textAlign="center">{setting.name}</Typography>
               </MenuItem>
             ))}
+            
           </Menu>
 
           <Typography variant='h6' fontWeight={300}>
             {is480 ? `${userInfo?.name?.split(" ")[0] || ''}` : `Hey👋, ${userInfo?.name || ''}`}
           </Typography>
 
+          {loggedInUser == null &&  <Button variant='outlined' href='/login'>Sign In</Button>
+            }
+
           {loggedInUser?.isAdmin && <Button variant='contained'>Admin</Button>}
 
           <Stack flexDirection="row" columnGap="1rem" alignItems="center" justifyContent="center">
-            {cartItems?.length > 0 && (
-              <Badge badgeContent={cartItems.length} color="error">
-                <IconButton onClick={() => navigate("/cart")}>
-                  <ShoppingCartOutlinedIcon />
-                </IconButton>
-              </Badge>
-            )}
+            <Badge badgeContent={cartItems?.length || 0} color="error">
+              <IconButton onClick={() => navigate("/cart")}>
+                <ShoppingCartOutlinedIcon />
+              </IconButton>
+            </Badge>
             {!loggedInUser?.isAdmin && wishlistItems?.length > 0 && (
               <Badge badgeContent={wishlistItems.length} color="error">
                 <IconButton component={Link} to="/wishlist">

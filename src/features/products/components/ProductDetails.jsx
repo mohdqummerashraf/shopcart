@@ -20,10 +20,15 @@ import {
   MobileStepper,
 } from "@mui/material";
 import {
+  addProductToCart,
   addToCartAsync,
+  decreaseProductQuantity,
+  deleteCartItemByIdAsync,
+  removeProductFromCart,
   resetCartItemAddStatus,
   selectCartItemAddStatus,
   selectCartItems,
+  updateCartItemByIdAsync,
 } from "../../cart/CartSlice";
 import { selectLoggedInUser } from "../../auth/AuthSlice";
 import {
@@ -56,6 +61,7 @@ import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 import Lottie from "lottie-react";
 import { loadingAnimation } from "../../../assets";
 import Slider from "react-slick";
+import { getLocalCart, setLocalCart } from "../../../app/cardutils";
 
 const SIZES = ["XS", "S", "M", "L"];
 const COLORS = ["#020202", "#F6F6F6", "#B82222"];
@@ -76,7 +82,8 @@ export const ProductDetails = () => {
   const product = useSelector(selectSelectedProduct);
   const loggedInUser = useSelector(selectLoggedInUser);
   const dispatch = useDispatch();
-  const cartItems = useSelector(selectCartItems);
+  const cartCount = useSelector((state) => state.cartSlice?.cartCount);
+  const items = useSelector((state) => state.cartSlice?.items);
   const cartItemAddStatus = useSelector(selectCartItemAddStatus);
   const [quantity, setQuantity] = useState(1);
   const [selectedSize, setSelectedSize] = useState("");
@@ -89,17 +96,31 @@ export const ProductDetails = () => {
   const is840 = useMediaQuery(theme.breakpoints.down(840));
   const is500 = useMediaQuery(theme.breakpoints.down(500));
   const is480 = useMediaQuery(theme.breakpoints.down(480));
-  // const is387 = useMediaQuery(theme.breakpoints.down(387));
-  // const is340 = useMediaQuery(theme.breakpoints.down(340));
 
   const wishlistItems = useSelector(selectWishlistItems);
 
-  const isProductAlreadyInCart = cartItems.some(
-    (item) => item.product._id === id
-  );
-  const isProductAlreadyinWishlist = wishlistItems.some(
-    (item) => item.product._id === id
-  );
+  const cartItems =
+    loggedInUser !== null && Object.keys(loggedInUser).length > 1
+      ? items || []
+      : cartCount || [];
+
+  const isProductAlreadyinWishlist = wishlistItems?.some((item) => {
+    if (loggedInUser !== null) {
+      return item?.product?._id === product?._id;
+    }
+    {
+      return item?.product?._id === product?._id;
+    }
+  });
+
+  const isProductAlreadyInCart = (cartItems || [])?.some((item) => {
+    if (loggedInUser !== null) {
+      return item?.product?._id === product?._id;
+    }
+    {
+      return item?._id === product?._id;
+    }
+  });
 
   const productFetchStatus = useSelector(selectProductFetchStatus);
   const reviewFetchStatus = useSelector(selectReviewFetchStatus);
@@ -114,7 +135,6 @@ export const ProductDetails = () => {
   const wishlistItemAddStatus = useSelector(selectWishlistItemAddStatus);
   const wishlistItemDeleteStatus = useSelector(selectWishlistItemDeleteStatus);
 
-  const discount = 10; // Example discount percentage
   const discountedPrice = (
     product?.price *
     (1 - (product?.discountPercentage || 10) / 100)
@@ -184,20 +204,45 @@ export const ProductDetails = () => {
   }, []);
 
   const handleAddToCart = () => {
-    const item = { user: loggedInUser._id, product: id, quantity };
-    dispatch(addToCartAsync(item));
-    setQuantity(1);
-  };
-
-  const handleDecreaseQty = () => {
-    if (quantity !== 1) {
-      setQuantity(quantity - 1);
+    const item = { product: id, quantity }; // Create item data
+    if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+      // For logged-in users, use async thunk to add to server cart
+      const itemWithUser = { ...item, user: loggedInUser._id };
+      dispatch(addToCartAsync(itemWithUser));
+    } else {
+      console.log("product", product);
+      // For guest users, add to cart directly in Redux
+      dispatch(addProductToCart({ ...product, quantity }));
     }
+    // setQuantity(1); // Reset quantity input field
   };
 
   const handleIncreaseQty = () => {
-    if (quantity < 20 && quantity < product.stockQuantity) {
-      setQuantity(quantity + 1);
+    if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+      // For logged-in users, update quantity on the server
+      const update = { _id: id, quantity: quantity + 1 };
+      dispatch(updateCartItemByIdAsync(update));
+    } else {
+      dispatch(addProductToCart(product)); // Dispatch update action to Redux for both logged-in and guest users
+    }
+  };
+
+  const handleDecreaseQty = () => {
+    if (quantity === 1) {
+      if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+        dispatch(deleteCartItemByIdAsync(id)); // Remove from the server (logged-in)
+      } else {
+        // Remove from Redux store directly (guest users)
+        dispatch(removeProductFromCart(product));
+      }
+    } else {
+      if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+        const update = { _id: id, quantity: quantity - 1 };
+        dispatch(updateCartItemByIdAsync(update)); // Update quantity on the server (logged-in)
+      } else {
+        // For guest users, update quantity directly in Redux store
+        dispatch(decreaseProductQuantity(product));
+      }
     }
   };
 
@@ -265,6 +310,7 @@ export const ProductDetails = () => {
                 mb={5}
                 flexDirection={is840 ? "column" : "row"}
                 columnGap={is990 ? "2rem" : "5rem"}
+                overflow={"auto"}
               >
                 {/* left stack (images) */}
                 <Stack
@@ -303,7 +349,6 @@ export const ProductDetails = () => {
                     </Stack>
                   )}
 
-                  
                   <Stack mt={is480 ? "0rem" : "5rem"}>
                     {is1420 ? (
                       <Stack
@@ -324,10 +369,6 @@ export const ProductDetails = () => {
                             </div>
                           ))}
                         </Slider>
-
-                         
-                        
-                         
                       </Stack>
                     ) : (
                       <div style={{ width: "100%" }}>
@@ -357,7 +398,7 @@ export const ProductDetails = () => {
                     <Stack
                       sx={{
                         flexDirection: "row",
-                        columnGap:   ".5rem",
+                        columnGap: ".5rem",
                         alignItems: "center",
                         flexWrap: "wrap",
                         rowGap: "1rem",
@@ -422,10 +463,7 @@ export const ProductDetails = () => {
                         width={"fit-content"}
                       >
                         <Typography>Colors: </Typography>
-                        <Stack
-                          flexDirection={"row"}
-                          columnGap={".5rem"}
-                        >
+                        <Stack flexDirection={"row"} columnGap={".5rem"}>
                           {COLORS.map((color, index) => (
                             <div
                               style={{
@@ -434,7 +472,7 @@ export const ProductDetails = () => {
                                   selectedColorIndex === index
                                     ? `1px solid ${theme.palette.primary.dark}`
                                     : "",
-                                width:  "40px ",
+                                width: "40px ",
                                 height: "40px",
                                 display: "flex",
                                 justifyContent: "center",
@@ -468,10 +506,7 @@ export const ProductDetails = () => {
                         width={"fit-content"}
                       >
                         <Typography>Size: </Typography>
-                        <Stack
-                          flexDirection={"row"}
-                          columnGap={ ".5rem"  }
-                        >
+                        <Stack flexDirection={"row"} columnGap={".5rem"}>
                           {SIZES.map((size) => (
                             <motion.div
                               onClick={() => handleSizeSelect(size)}
@@ -506,58 +541,10 @@ export const ProductDetails = () => {
                       {/* quantity , add to cart and wishlist */}
                       <Stack
                         flexDirection={"row"}
-                        columnGap={ ".3rem"  }
+                        columnGap={".3rem"}
                         width={"100%"}
                       >
-                        {/* qunatity */}
-                        <Stack
-                          flexDirection={"row"}
-                          alignItems={"center"}
-                          justifyContent={"space-between"}
-                        >
-                          <MotionConfig
-                            whileHover={{ scale: 1.05 }}
-                            whileTap={{ scale: 1 }}
-                          >
-                            <motion.button
-                              onClick={handleDecreaseQty}
-                              style={{
-                                padding: "10px 15px",
-                                fontSize: "1.050rem",
-                                backgroundColor: "",
-                                color: "black",
-                                outline: "none",
-                                border: "1px solid black",
-                                borderRadius: "8px",
-                              }}
-                            >
-                              -
-                            </motion.button>
-                            <p
-                              style={{
-                                margin: "0 1rem",
-                                fontSize: "1.1rem",
-                                fontWeight: "400",
-                              }}
-                            >
-                              {quantity}
-                            </p>
-                            <motion.button
-                              onClick={handleIncreaseQty}
-                              style={{
-                                padding: "10px 15px",
-                                fontSize: "1.050rem",
-                                backgroundColor: "black",
-                                color: "white",
-                                outline: "none",
-                                border: "none",
-                                borderRadius: "8px",
-                              }}
-                            >
-                              +
-                            </motion.button>
-                          </MotionConfig>
-                        </Stack>
+                        
 
                         {/* add to cart */}
                         {isProductAlreadyInCart ? (

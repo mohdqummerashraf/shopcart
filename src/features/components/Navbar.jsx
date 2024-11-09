@@ -16,7 +16,7 @@ import TuneIcon from '@mui/icons-material/Tune';
 import { selectProductIsFilterOpen, toggleFilters } from '../../products/ProductSlice';
 
 export const Navbar = ({ isProductList = false }) => {
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const userInfo = useSelector(selectUserInfo);
   const cartItems = useSelector(selectCartItems);
   const loggedInUser = useSelector(selectLoggedInUser);

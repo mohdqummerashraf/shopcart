@@ -45,6 +45,10 @@ const wishlistSlice=createSlice({
         resetWishlistFetchStatus:(state)=>{
             state.wishlistFetchStatus='idle'
         },
+        removeFromWishlist: (state, action) => {
+            // Remove item from wishlist after it has been added to cart
+            state.items = state.items.filter((item) => item._id !== action.payload);
+          },
 
     },
     extraReducers:(builder)=>{
@@ -113,6 +117,6 @@ export const selectWishlistSuccessMessage=(state)=>state.WishlistSlice.successMe
 export const selectWishlistTotalResults=(state)=>state.WishlistSlice.totalResults
 
 // exporting actions
-export const {resetWishlistFetchStatus,resetWishlistItemAddStatus,resetWishlistItemDeleteStatus,resetWishlistItemUpdateStatus}=wishlistSlice.actions
+export const {removeFromWishlist, resetWishlistFetchStatus,resetWishlistItemAddStatus,resetWishlistItemDeleteStatus,resetWishlistItemUpdateStatus}=wishlistSlice.actions
 
 export default wishlistSlice.reducer

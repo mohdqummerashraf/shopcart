@@ -10,9 +10,18 @@ import {
 import React from "react";
 import AddIcon from "@mui/icons-material/Add";
 import RemoveIcon from "@mui/icons-material/Remove";
-import { useDispatch } from "react-redux";
-import { deleteCartItemByIdAsync, updateCartItemByIdAsync } from "../CartSlice";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  addProductToCart,
+  decreaseProductQuantity,
+  deleteCartItemByIdAsync,
+  removeProductFromCart,
+  setCartFromLocalStorage,
+  updateCartItemByIdAsync,
+} from "../CartSlice";
 import { Link } from "react-router-dom";
+import { selectLoggedInUser } from "../../auth/AuthSlice";
+import { getLocalCart, setLocalCart } from "../../../app/cardutils";
 
 export const CartItem = ({
   id,
@@ -25,29 +34,60 @@ export const CartItem = ({
   stockQuantity,
   discountPercentage,
   productId,
+  product
 }) => {
+
+  console.log("title", title)
   const dispatch = useDispatch();
+  const loggedInUser = useSelector(selectLoggedInUser);
   const theme = useTheme();
   const is900 = useMediaQuery(theme.breakpoints.down(900));
   const is480 = useMediaQuery(theme.breakpoints.down(480));
   const is552 = useMediaQuery(theme.breakpoints.down(552));
 
   const handleAddQty = () => {
-    const update = { _id: id, quantity: quantity + 1 };
-    dispatch(updateCartItemByIdAsync(update));
-  };
-  const handleRemoveQty = () => {
-    if (quantity === 1) {
-      dispatch(deleteCartItemByIdAsync(id));
-    } else {
-      const update = { _id: id, quantity: quantity - 1 };
+    if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+      // For logged-in users, update quantity on the server
+      const update = { _id: id, quantity: quantity + 1 };
       dispatch(updateCartItemByIdAsync(update));
+    } else {
+       dispatch(addProductToCart(product)); // Dispatch update action to Redux for both logged-in and guest users
     }
   };
+  
+
+  const handleRemoveQty = () => {
+    if (quantity === 1) {
+      if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+        dispatch(deleteCartItemByIdAsync(id)); // Remove from the server (logged-in)
+      } else {
+        // Remove from Redux store directly (guest users)
+        dispatch(removeProductFromCart(productId));
+      }
+    } else {
+      if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+        const update = { _id: id, quantity: quantity - 1 };
+        dispatch(updateCartItemByIdAsync(update)); // Update quantity on the server (logged-in)
+      } else {
+        // For guest users, update quantity directly in Redux store
+        dispatch(decreaseProductQuantity(productId));
+
+      }
+    }
+  };
+  
 
   const handleProductRemove = () => {
-    dispatch(deleteCartItemByIdAsync(id));
+     const userId = loggedInUser?._id;
+    if (loggedInUser && Object.keys(loggedInUser).length > 1) {
+      // For logged-in users, remove item from the server
+      dispatch(deleteCartItemByIdAsync({ userId, productId }));
+    } else {
+      // For guest users, remove item directly from Redux
+      dispatch(removeProductFromCart(productId));
+    }
   };
+  
 
   return (
     <Stack
@@ -128,7 +168,7 @@ export const CartItem = ({
             ₹{price}
           </Typography>
           <Typography variant="h4" fontWeight={"bold"}>
-            ₹{(price * (1 - (discountPercentage ||10) / 100)).toFixed(2)}
+            ₹{(price * (1 - (discountPercentage || 10) / 100)).toFixed(2)}
           </Typography>
         </Stack>
         <Button

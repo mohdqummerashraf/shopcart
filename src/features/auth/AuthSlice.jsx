@@ -58,10 +58,10 @@ export const resetPasswordAsync=createAsyncThunk('auth/resetPasswordAsync',async
     return res
 })
 
-export const checkAuthAsync=createAsyncThunk('auth/checkAuthAsync',async()=>{
-    const res=await checkAuth()
-    return res
-})
+// export const checkAuthAsync=createAsyncThunk('auth/checkAuthAsync',async()=>{
+//     const res=await checkAuth()
+//     return res
+// })
 
 export const logoutAsync=createAsyncThunk("auth/logoutAsync",async()=>{
     const res=await logout()
@@ -230,19 +230,19 @@ const authSlice=createSlice({
                 state.errors=action.error
             })
 
-            .addCase(checkAuthAsync.pending,(state)=>{
-                state.status='pending'
-            })
-            .addCase(checkAuthAsync.fulfilled,(state,action)=>{
-                state.status='fullfilled'
-                state.loggedInUser=action.payload
-                state.isAuthChecked=true
-            })
-            .addCase(checkAuthAsync.rejected,(state,action)=>{
-                state.status='rejected'
-                state.errors=action.error
-                state.isAuthChecked=true
-            })
+            // .addCase(checkAuthAsync.pending,(state)=>{
+            //     state.status='pending'
+            // })
+            // .addCase(checkAuthAsync.fulfilled,(state,action)=>{
+            //     state.status='fullfilled'
+            //     state.loggedInUser=action.payload
+            //     state.isAuthChecked=true
+            // })
+            // .addCase(checkAuthAsync.rejected,(state,action)=>{
+            //     state.status='rejected'
+            //     state.errors=action.error
+            //     state.isAuthChecked=true
+            // })
             
     }
 })
