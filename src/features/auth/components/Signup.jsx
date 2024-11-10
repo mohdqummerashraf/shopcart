@@ -1,5 +1,5 @@
 import {FormHelperText, Stack, TextField, Typography,Box, useTheme, useMediaQuery} from '@mui/material'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import Lottie from 'lottie-react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useForm } from "react-hook-form"
@@ -9,6 +9,7 @@ import { LoadingButton } from '@mui/lab';
 import {selectLoggedInUser, signupAsync,selectSignupStatus, selectSignupError, clearSignupError, resetSignupStatus} from '../AuthSlice'
 import { toast } from 'react-toastify'
 import { MotionConfig , motion} from 'framer-motion'
+import { addToCartAsync, fetchCartByUserIdAsync, removeProductFromCart } from '../../cart/CartSlice'
 
 export const Signup = () => {
   const dispatch=useDispatch()
@@ -21,9 +22,42 @@ export const Signup = () => {
   const is900=useMediaQuery(theme.breakpoints.down(900))
   const is480=useMediaQuery(theme.breakpoints.down(480))
 
+  const cartCount = useSelector((state) => state.cartSlice?.cartCount);
+  const items = useSelector((state) => state.cartSlice?.items);
+
+  const cartItems =
+    loggedInUser !== null && Object.keys(loggedInUser).length > 1
+      ? items || []
+      : cartCount || [];
+
+  const [localCartItems, setLocalCartItems] = useState(cartItems); // Backup local cart items
+  const [cartSynced, setCartSynced] = useState(false); // Track when cart sync is done
+
+  useEffect(() => {
+    const addItemsToServerCart = async () => {
+      for (const item of localCartItems) {
+        await dispatch(
+          addToCartAsync({
+            user: loggedInUser._id,
+            product: item._id,
+            quantity: item.quantity,
+          })
+        );
+        await dispatch(removeProductFromCart(item._id));
+      }
+      // Fetch updated cart and set sync flag to true after completion
+      dispatch(fetchCartByUserIdAsync(loggedInUser._id));
+      setCartSynced(true); // Mark sync completion for navigation
+    };
+
+    if (loggedInUser && loggedInUser.isVerified && localCartItems.length > 0) {
+      addItemsToServerCart();
+    }
+  }, [loggedInUser, localCartItems, dispatch]);
+
   // handles user redirection
   useEffect(()=>{
-    if(loggedInUser && !loggedInUser?.isVerified){
+    if(loggedInUser && loggedInUser?.isVerified){
       // navigate("/verify-otp")
       navigate("/")
 
@@ -32,6 +66,17 @@ export const Signup = () => {
       navigate("/")
     }
   },[loggedInUser])
+
+  useEffect(() => {
+    if (loggedInUser && loggedInUser.isVerified) {
+      if (cartSynced) {
+        navigate("/cart");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [cartSynced, navigate, loggedInUser]);
+
 
 
   // handles signup error and toast them
